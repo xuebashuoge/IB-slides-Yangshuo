@@ -1,7 +1,7 @@
 \documentclass{beamer}
 \usepackage[utf8]{inputenc}
 \usepackage{hyperref}
-\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\usepackage[backend=biber, style=authoryear, sorting=none]{biblatex}
 \usepackage{fancyhdr}
 \usepackage{colortbl}
 \usepackage{setspace}   % line space
@@ -112,13 +112,13 @@
 \begin{frame}
 \frametitle{Outline}
 \begin{itemize}
-    \item Background of the Information Bottleneck framework
+    \item Background of the Information Bottleneck (IB) framework
     \item The IB cracks open the black box of deep learning
     \begin{itemize}
         \item Two phases of the information dynamics during training
         \item An information compression bounds
     \end{itemize}
-    \item Onging debate on the IB framework
+    \item Ongoing debates on the IB framework
 \end{itemize}
 \begin{figure}
     \centering
@@ -135,9 +135,9 @@
 \begin{frame}
     \frametitle{How does DNN work?}
     \begin{itemize}
-        \item DL has shown its great potential in learning critical information in certain tasks (The magic of DNN is its generalization ability: learning from special cases, while showing intelligence toward general concepts.)
+        \item Deep learning (DL) has shown its great potential in learning critical information for certain tasks \note{The magic of DNN is its generalization ability: learning from special cases, while showing intelligence toward general concepts.}
         \item The theoretical understanding of DL remains unsatisfied \note{DNN is a black box.}
-        \item Information theory plays an important role in explaining the DL mechanism \note{DL is actually extracting patterns from a large scale complex data, it involves data commpression, }
+        \item Information theory plays an important role in explaining the DL mechanism \note{DL is actually extracting patterns from a large scale complex data, it involves data commpression, has similar concept of encoding and decoding}
     \end{itemize}
 \end{frame}
 
@@ -146,7 +146,7 @@
 \begin{frame}
     \frametitle{IB combines 3 different ingredients}
     \begin{itemize}
-        \item Statistic Theory: data-dependent but architecture independent bounds \note{from worst case results to a typical case result}
+        \item Learning Theory: data-dependent but architecture-independent bound \note{from worst case results to a typical case result}
         \item Information Theory: using the same notations and techniques
         \item Stochastic dynamics of the training: convergence of SGD
     \end{itemize}
@@ -158,19 +158,31 @@
 
 \begin{frame}
 \frametitle{Review of DNN}
-\begin{figure}
-    \centering
-    \includegraphics[width=6cm]{DNN.jpg}
-\end{figure}
+\begin{columns}
+    \begin{column}{0.65\textwidth}
+        \begin{figure}
+            \centering
+            \includegraphics[width=6cm]{DNN.jpg}
+        \end{figure}
+    \end{column}
+    \begin{column}{0.35\textwidth}
+        \begin{itemize}
+            \item $Y$: target label
+            \item $X$: input data
+            \item $\mathbf{h}_i$: features
+            \item $\hat{Y}$: prediction
+        \end{itemize}
+    \end{column}
+\end{columns}
 \begin{itemize}
     \item The input data goes through a series of transformations
     \begin{equation}
         \mathbf{h}_{i+1}=\sigma(W_i\mathbf{h}_{i}+b_i),\quad \mathbf{h}_0=X
     \end{equation}
     \note{Each layer generates a new representation of the input data}
-    \item \textbf{The cascade network forms a Markov chain}
+    \item The cascade network forms a \textbf{Markov chain}
     \begin{equation}
-        Y\to X\to \hat{X}
+        Y\to X\to \hat{X}\to \hat{Y}
     \end{equation}
     \note{The prediction Markov chain is incorrect, $X\to\hat{X}\to Y$}
 \end{itemize}
@@ -209,7 +221,7 @@
 %---------------------------------------------------------
 
 \begin{frame}
-    \frametitle{The IB Method \cite{IB-method}}
+    \frametitle{The IB Method (\cite{IB-method})}
     \note{The IB method was introduced long ago, which originated from the Rate-Distortion problem. The key difference is the introduction of an additional variable that dtermines what is relevant.}
     \begin{columns}[T]
         \begin{column}{0.5\textwidth}
@@ -239,11 +251,12 @@
     \end{columns}
     \hspace{1cm}
     \begin{itemize}
-        \item Using the Lagrange multipliers method, the optimal solution is given by
+        \item Using the Lagrange multipliers method, the optimal solution is
         \begin{equation}
-            p^*(\hat{x}|x) = \frac{p(\hat{x})}{Z(x, \beta)} \exp\left(-\beta D\left(p(y|x)\|p(y|\hat{x})\right)\right),
+            p^*(\hat{x}|x) = \frac{p(\hat{x})}{Z(x, \beta)} \exp\left[-\beta D\left(p(y|x)\|p(y|\hat{x})\right)\right],
         \end{equation}
-        where $Z(x, \beta)=\sum_{\hat{x}}p(\hat{x})\exp\left(-\beta D\left(p(y|x)\|p(y|\hat{x})\right)\right)$ is the normalization function.
+        where $Z(x, \beta)$ is the normalization function
+        \item Iteratively solved by Blauht-Arimoto algorithm
     \end{itemize}
     \note{These two methods are equivalent when we choose a KL divergence distortion $d_{IB}\left(x,\hat{x}\right)=D\left(p(y|x)\|p(y|\hat{x})\right)$.}
 \end{frame}
@@ -256,7 +269,7 @@
         \begin{column}{0.4\textwidth}
             \begin{figure}
                 \centering
-                \includegraphics[width=5.5cm]{DNN.jpg}
+                \includegraphics[width=5.5cm]{DNN_partition.jpg}
             \end{figure}
         \end{column}
         \begin{column}{0.6\textwidth}
@@ -267,6 +280,7 @@
                     & I(X;Y) \geq I(\mathbf{h}_{i};Y) \geq I(\mathbf{h}_{i+1};Y)\geq \cdots 
                 \end{align}
                 \item Each layer gives a more refine representation
+                \item These representations induce distinct partitions of input
             \end{itemize}
         \end{column}
     \end{columns}
@@ -281,11 +295,13 @@
         \centering
         \includegraphics[width=5.5cm]{IB_encoder_decoder.jpg}
     \end{figure}
+    \vspace{-0.2cm}
     \begin{itemize}
         \item A resemblance between DNN and relevance compression
         \item Learn a minimal sufficient statistics $T$ (\textbf{bottleneck}): minimal description length $I(X;T)$ and maximal relevant information $I(T;Y)$
     \end{itemize}
-    \begin{block}{Statement \cite{IB-DNN}}
+    \vspace{-0.2cm}
+    \begin{block}{Statement (\cite{IB-DNN})}
         The sample complexity of DNN is determined by the encoder MI $I(X;T)$, and the accuracy is determined by the decoder MI $I(T;Y)$
     \end{block}
 \end{frame}
@@ -389,7 +405,7 @@
         \item High SNR phase: memorization (drift)
         \item Low SNR phase: forgetting (diffusion)
     \end{itemize}
-    \textbf{Claim: The two stochastic gradient phases correspond the fitting and compression phases}
+    \textbf{Claim: These two stochastic gradient phases correspond the fitting and compression phases}
 \end{frame}
 
 \begin{frame}
@@ -430,7 +446,7 @@
     \end{itemize}
     \vspace{1cm}
     \centering
-    \pause \textbf{None of them hold true in the general case!} \cite{IB-challenge}
+    \pause \textbf{None of them hold true in the general case!} (\cite{IB-challenge})
 
 \end{frame}
 
